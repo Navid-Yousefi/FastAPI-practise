@@ -12,7 +12,7 @@ name_list = [
     {"id": 5, "name": "aghil"},
 ]
 
-@app.get("/names")
+@app.get("/names", status_code=status.HTTP_200_OK)
 def retrieve_names_list(
     q: str | None = Query(
         default=None,
@@ -27,20 +27,30 @@ def retrieve_names_list(
 
 
 
-@app.post('/create')
+@app.post('/create', status_code=status.HTTP_201_CREATED)
 def create_name(name: str = Form()):
     name_obj = {"id": random.randint(1, 999), "name": name}
     name_list.append(name_obj)
     return name_obj
 
 
-@app.put('/update/{name_id}')
+@app.put('/update/{name_id}', status_code=status.HTTP_200_OK)
 def update_name_list(name_id: int, name: str):
     for item in name_list:
         if item['id'] == name_id:
             item['name'] == name
             return item
-    return {'detail': 'object not found'}
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+
+
+@app.delete('/delete/{user_id}', status_code=status.HTTP_200_OK)
+def delete_name(user_id: int):
+    for item in name_list:
+        if item['id'] == user_id:
+            name_list.remove(item)
+            return {'detail': 'object removed successfally'}
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
 
 
