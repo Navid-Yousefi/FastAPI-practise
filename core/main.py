@@ -1,6 +1,10 @@
-from fastapi import FastAPI, Query, status, Body, HTTPException, Form
-import random
+from fastapi import FastAPI, Query, status, Body, HTTPException, Form, Path
 from contextlib import asynccontextmanager
+from dataclasses import dataclass
+from schema import PersonCreateSchema, PersonResponseSchema, PersonUpdateSchema
+import random
+from typing import List
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -15,6 +19,7 @@ app = FastAPI(lifespan=lifespan)
 
 
 
+
 name_list = [
     {"id": 1, "name": "navid"},
     {"id": 2, "name": "ali"},
@@ -23,33 +28,33 @@ name_list = [
     {"id": 5, "name": "aghil"},
 ]
 
-@app.get("/names", status_code=status.HTTP_200_OK)
-def retrieve_names_list(
-    q: str | None = Query(
-        default=None,
-        alias="Search",
-        description="it will be searched with title you provided",
-        max_length=250,
-    )
-):
-    if q:
-        return [i for i in name_list if i["name"] == q]
+@app.get("/names", status_code=status.HTTP_200_OK, response_model=List[PersonResponseSchema])
+def retrieve_names_list():
     return name_list
 
 
+@app.get('/names/{name_id}', status_code=status.HTTP_200_OK, response_model=PersonResponseSchema)
+def retrive_name_detail(name_id:int = Path(..., title='Object id' , description='the id of name in name_list')):
+    for item in name_list:
+        if item['id'] == name_id:
+            return item
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Object not found')
 
-@app.post('/create', status_code=status.HTTP_201_CREATED)
-def create_name(name: str = Body(embed=True)):
-    name_obj = {"id": random.randint(1, 999), "name": name}
+
+
+
+@app.post('/create', status_code=status.HTTP_201_CREATED, response_model=PersonResponseSchema)
+def create_name(person: PersonCreateSchema):
+    name_obj = {"id": random.randint(1, 999), "name": person.name}
     name_list.append(name_obj)
     return name_obj
 
 
-@app.put('/update/{name_id}', status_code=status.HTTP_200_OK)
-def update_name_list(name_id: int, name: str):
+@app.put('/update/{name_id}', status_code=status.HTTP_200_OK, response_model=PersonResponseSchema)
+def update_name_list(person: PersonUpdateSchema, name_id: int = Path):
     for item in name_list:
         if item['id'] == name_id:
-            item['name'] == name
+            item['name'] = person.name
             return item
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
