@@ -1,7 +1,18 @@
 from fastapi import FastAPI, Query, status, Body, HTTPException, Form
 import random
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print('Application startup')
+
+    yield
+    print('Application shutdown')
+
+
+
+app = FastAPI(lifespan=lifespan)
+
 
 
 name_list = [
@@ -28,7 +39,7 @@ def retrieve_names_list(
 
 
 @app.post('/create', status_code=status.HTTP_201_CREATED)
-def create_name(name: str = Form()):
+def create_name(name: str = Body(embed=True)):
     name_obj = {"id": random.randint(1, 999), "name": name}
     name_list.append(name_obj)
     return name_obj
