@@ -6,6 +6,7 @@ import random
 from typing import List
 
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print('Application startup')

@@ -7,8 +7,10 @@ class User(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     first_name = Column(String(length=30))
-    last_name = Column(String(length=30))
+    last_name = Column(String(length=30), nullable=True)
     age = Column(Integer)
+    is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
 
     def __repr__(self):
         return f"User(id={self.id},first_name={self.first_name},age={self.age})"
