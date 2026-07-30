@@ -60,6 +60,8 @@ class Post(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'))
 
+    comments = relationship('Comment', backref='post')
+
     title = Column(String)
     content = Column(Text)
     created_date = Column(DateTime, default=datetime.now)
@@ -72,16 +74,20 @@ class Post(Base):
 class Comment(Base):
     __tablename__ = 'comments'
 
-    id = Column(Integer, primary_key=True, autoincrement=Text)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     post_id = Column(Integer, ForeignKey('posts.id'))
     parent_id = Column(Integer, ForeignKey('comments.id'), nullable=True)
 
-    parent = relationship('Comment', back_populates='children')
-    children = relationship('Comment', back_populates='parent')
+    parent = relationship('Comment', back_populates='children', remote_side=[id])
+    children = relationship('Comment', back_populates='parent', remote_side=[parent_id])
 
     content = Column(Text)
     created_date = Column(DateTime, default=datetime.now)
 
     def __repr__(self):
-        return f'Comment(id={self.id}, post_id={self.post_id}, user_id={self.user_id})'
+        return f'Comment(id={self.id}, post_id={self.post_id}, user_id={self.user_id}, content={self.content})'
+
+
+
+    
