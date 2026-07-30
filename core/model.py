@@ -77,7 +77,8 @@ class Comment(Base):
     post_id = Column(Integer, ForeignKey('posts.id'))
     parent_id = Column(Integer, ForeignKey('comments.id'), nullable=True)
 
-    parent = relationship('Comment', back_populates='')
+    parent = relationship('Comment', back_populates='children')
+    children = relationship('Comment', back_populates='parent')
 
     content = Column(Text)
     created_date = Column(DateTime, default=datetime.now)
