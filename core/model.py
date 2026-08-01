@@ -1,7 +1,19 @@
 from database import Base
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Text, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Text, DateTime, Table, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
+
+
+enrollments = Table(
+    'student_course', Base.metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('user_id', Integer, ForeignKey('users.id')),
+    Column('course_id', Integer, ForeignKey('courses.id')),
+    Column('enrolled_date', DateTime, default=datetime.now),
+    UniqueConstraint('user_id', 'course_id', name='unique_user_course_enrolled')
+)
+
+
 
 class User(Base):
     __tablename__ = 'users'
@@ -16,6 +28,7 @@ class User(Base):
     addresses = relationship("Address", backref='user')
     profile = relationship('Profile', backref='user', uselist=False)
     posts = relationship('Post', backref='user')
+    courses = relationship('Course', secondary=enrollments, back_populates='attendees')
 
 
     def __repr__(self):
@@ -87,6 +100,25 @@ class Comment(Base):
 
     def __repr__(self):
         return f'Comment(id={self.id}, post_id={self.post_id}, user_id={self.user_id}, content={self.content})'
+
+
+
+
+class Course(Base):
+    __tablename__ = 'courses'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String(length=300))
+    description = Column(Text)
+
+    attendees = relationship('User', secondary=enrollments, back_populates='courses')
+    
+
+    created_date = Column(DateTime, default=datetime.now)
+    updated_date = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    def __repr__(self):
+        return f'Course(id={self.id}, title={self.title})'
 
 
 
