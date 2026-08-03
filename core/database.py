@@ -5,9 +5,9 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, declarative_base
 from config import settings
 
-env_path = Path(__file__).parent.parent / '.env'
-load_dotenv(dotenv_path=env_path)
-DATABASE_URL = os.getenv('DATABASE_URL')
+# env_path = Path(__file__).parent.parent / '.env'
+# load_dotenv(dotenv_path=env_path)
+# DATABASE_URL = os.getenv('DATABASE_URL')
 
 
 engine = create_engine(
