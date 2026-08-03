@@ -5,7 +5,7 @@ from pydantic import BaseModel, field_validator, field_serializer, Field
 class BasePersonSchema(BaseModel):
     name: str = Field(..., description='Enter Persons name')
 
-    @field_validator
+    @field_validator('name')
     def validate_name(cls, value):
         if len(value) > 32:
             raise ValueError('Name must not exceed 32 characters')
@@ -17,14 +17,14 @@ class BasePersonSchema(BaseModel):
     def serializer_name(value):
         return value.title()
 
-class PersonCreateSchema(BaseModel):
+class PersonCreateSchema(BasePersonSchema):
     pass
 
 
-class PersonResponseSchema(BaseModel):
+class PersonResponseSchema(BasePersonSchema):
     id: int = Field(..., description='Unique user identifier')
 
 
 
-class PersonUpdateSchema(BaseModel):
+class PersonUpdateSchema(BasePersonSchema):
     pass
